@@ -1,0 +1,20 @@
+{
+  "name": "neto-financeiro",
+  "version": "1.0.0",
+  "description": "Painel financeiro pessoal do Neto - registra PIX e compras de cartao automaticamente via Open Finance (Pluggy), com site para visualizar tudo.",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2",
+    "firebase-admin": "^12.7.0",
+    "node-fetch": "^2.7.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
