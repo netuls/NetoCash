@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const path = require('path');
 const express = require('express');
+const admin = require('firebase-admin');
 
 const { salvarTransacao, transacaoExiste } = require('./firebase');
 const { buscarTransacoesNovas } = require('./pluggy');
@@ -12,10 +13,50 @@ const INTERVALO_MS = (Number(process.env.SYNC_INTERVAL_MINUTOS) || 30) * 60 * 10
 let ultimaSincronizacao = null;
 let sincronizando = false;
 
+// ---------- Firestore (para a rota de apagar historico) ----------
+// Reaproveita o app do firebase-admin se o firebase.js ja tiver inicializado;
+// senao, inicializa aqui mesmo com as mesmas credenciais.
+function obterFirestore() {
+  if (!admin.apps.length) {
+    const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || './serviceAccountKey.json';
+    const serviceAccount = require(serviceAccountPath);
+    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+  }
+  return admin.firestore();
+}
+
+async function apagarTransacoesDoMes(ano, mes) {
+  const db = obterFirestore();
+  const colecao = process.env.FIRESTORE_COLLECTION || 'transacoes';
+
+  const inicio = new Date(Date.UTC(ano, mes - 1, 1));
+  const fim = new Date(Date.UTC(ano, mes, 1));
+
+  const snapshot = await db
+    .collection(colecao)
+    .where('data', '>=', inicio.toISOString())
+    .where('data', '<', fim.toISOString())
+    .get();
+
+  if (snapshot.empty) return 0;
+
+  const docs = snapshot.docs;
+  const tamanhoLote = 500;
+
+  for (let i = 0; i < docs.length; i += tamanhoLote) {
+    const lote = db.batch();
+    docs.slice(i, i + tamanhoLote).forEach((doc) => lote.delete(doc.ref));
+    await lote.commit();
+  }
+
+  return docs.length;
+}
+
 // ---------- Site (Express) ----------
 
 function iniciarSite() {
   const app = express();
+  app.use(express.json());
 
   // Estrutura sem subpastas: servimos so os arquivos do site, um a um,
   // pra nao expor server.js, firebase.js, pluggy.js ou o .env pela web.
@@ -36,6 +77,26 @@ function iniciarSite() {
       res.json({ ok: true, novasTransacoes: total });
     } catch (err) {
       console.error('[sync manual] erro:', err.message);
+      res.status(500).json({ ok: false, erro: err.message });
+    }
+  });
+
+  // Apaga todas as transacoes de um mes especifico (irreversivel).
+  // Body esperado: { "ano": 2026, "mes": 7 }
+  app.post('/apagar-mes', async (req, res) => {
+    try {
+      const ano = Number(req.body.ano);
+      const mes = Number(req.body.mes);
+
+      if (!ano || !mes || mes < 1 || mes > 12) {
+        return res.status(400).json({ ok: false, erro: 'Informe "ano" e "mes" (1-12) validos.' });
+      }
+
+      const apagadas = await apagarTransacoesDoMes(ano, mes);
+      console.log(`[apagar-mes] ${apagadas} transacao(oes) apagada(s) de ${mes}/${ano}.`);
+      res.json({ ok: true, apagadas });
+    } catch (err) {
+      console.error('[apagar-mes] erro:', err.message);
       res.status(500).json({ ok: false, erro: err.message });
     }
   });
