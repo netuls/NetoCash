@@ -53,7 +53,14 @@ async function sincronizar() {
 
   try {
     console.log('[sync] Buscando transacoes novas na Pluggy...');
-    const transacoes = await buscarTransacoesNovas();
+
+    // So busca transacoes dos ultimos 3 dias, em vez do historico inteiro toda vez.
+    // Isso evita reprocessar milhares de transacoes antigas a cada ciclo.
+    const tresDiasAtras = new Date();
+    tresDiasAtras.setDate(tresDiasAtras.getDate() - 3);
+    const dataInicial = tresDiasAtras.toISOString().slice(0, 10); // formato YYYY-MM-DD
+
+    const transacoes = await buscarTransacoesNovas(dataInicial);
 
     let salvas = 0;
     for (const t of transacoes) {
