@@ -470,6 +470,65 @@ a:focus-visible {
   color: var(--muted);
 }
 
+/* ---------- Zona de perigo ---------- */
+
+.danger-panel {
+  border-color: rgba(214, 69, 80, 0.25);
+}
+
+.danger-title {
+  color: var(--negative) !important;
+}
+
+.danger-desc {
+  font-size: 0.78rem;
+  color: var(--muted-soft);
+  margin: 0 0 14px;
+  line-height: 1.45;
+}
+
+.month-input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--surface-alt);
+  color: var(--ink);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
+
+.danger-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(214, 69, 80, 0.4);
+  color: var(--negative);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.danger-btn:hover {
+  background: var(--negative);
+  color: white;
+}
+
+.danger-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.danger-status {
+  font-size: 0.75rem;
+  color: var(--muted-soft);
+  margin: 10px 0 0;
+  min-height: 1em;
+}
+
 /* ---------- Animacoes ---------- */
 
 @keyframes drift-a {
