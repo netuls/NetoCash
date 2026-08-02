@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Neto Financeiro</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -11,7 +16,16 @@
 
     <header class="topbar">
       <div class="brand">
-        <span class="brand-name">Neto Financeiro</span>
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="13" cy="13" r="12" stroke="currentColor" stroke-width="1.4" opacity="0.35" />
+            <path d="M4 13H9L11 8L15 18L17 13H22" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="brand-mark-pulse" />
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-name">Neto Financeiro</span>
+          <span class="brand-sub">Controle pessoal &middot; Open Finance</span>
+        </span>
       </div>
       <div class="month-switch">
         <button id="prevMonth" class="month-btn" aria-label="Mes anterior">&#8249;</button>
@@ -21,16 +35,25 @@
     </header>
 
     <section class="hero">
-      <p class="hero-label">Total movimentado no mes</p>
-      <p class="hero-amount"><span class="currency">R$</span><span id="totalMes">0,00</span></p>
-      <div class="hero-stats">
-        <div class="hero-stat">
-          <span class="hero-stat-value" id="totalEntradas">0,00</span>
-          <span class="hero-stat-label">entradas (PIX recebido)</span>
-        </div>
-        <div class="hero-stat">
-          <span class="hero-stat-value" id="totalSaidas">0,00</span>
-          <span class="hero-stat-label">saidas (PIX + cartao)</span>
+      <div class="aurora" aria-hidden="true">
+        <span class="aurora-blob aurora-blob-a"></span>
+        <span class="aurora-blob aurora-blob-b"></span>
+        <span class="aurora-blob aurora-blob-c"></span>
+      </div>
+
+      <div class="hero-content">
+        <p class="hero-label">Total movimentado no mes</p>
+        <p class="hero-amount"><span class="currency">R$</span><span id="totalMes">0,00</span></p>
+        <div class="pulse-line" aria-hidden="true"></div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-value" id="totalEntradas">0,00</span>
+            <span class="hero-stat-label">entradas (PIX recebido)</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value" id="totalSaidas">0,00</span>
+            <span class="hero-stat-label">saidas (PIX + cartao)</span>
+          </div>
         </div>
       </div>
     </section>
