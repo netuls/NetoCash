@@ -52,13 +52,26 @@ async function listarContas(itemId) {
 }
 
 // Lista transacoes de uma conta especifica, com filtro opcional por data.
+// Usa o endpoint /v2/transactions com paginacao por cursor.
+// (O antigo /transactions com pageSize foi descontinuado pela Pluggy - retorna 410.)
 async function listarTransacoes(accountId, dataInicial) {
-  let endpoint = `/transactions?accountId=${accountId}&pageSize=200`;
+  const todasTransacoes = [];
+  let endpoint = `/v2/transactions?accountId=${accountId}`;
   if (dataInicial) {
-    endpoint += `&from=${dataInicial}`;
+    endpoint += `&dateFrom=${dataInicial}`;
   }
-  const data = await chamarPluggy(endpoint);
-  return data.results || [];
+
+  while (endpoint) {
+    const data = await chamarPluggy(endpoint);
+    todasTransacoes.push(...(data.results || []));
+
+    // "next" vem apenas com a query string (ex: "?accountId=...&after=...").
+    // Precisamos prefixar com o caminho /v2/transactions pra formar o endpoint completo.
+    // Quando "next" for null, acabaram as paginas.
+    endpoint = data.next ? `/v2/transactions${data.next}` : null;
+  }
+
+  return todasTransacoes;
 }
 
 // Busca todas as transacoes novas de todos os itens configurados no .env.
