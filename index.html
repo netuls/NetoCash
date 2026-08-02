@@ -83,6 +83,14 @@
           <h3>Por categoria</h3>
           <div id="categoriaList" class="categoria-list"></div>
         </section>
+
+        <section class="panel danger-panel">
+          <h3 class="danger-title">Zona de perigo</h3>
+          <p class="danger-desc">Apaga permanentemente todas as transacoes do mes escolhido. Essa acao nao pode ser desfeita.</p>
+          <input type="month" id="apagarMesInput" class="month-input" />
+          <button id="apagarMesBtn" class="danger-btn" type="button">Apagar historico do mes</button>
+          <p id="apagarMesStatus" class="danger-status"></p>
+        </section>
       </aside>
 
     </main>
@@ -90,5 +98,54 @@
 
   <script type="module" src="firebase-config.js"></script>
   <script type="module" src="app.js"></script>
+  <script>
+    (function () {
+      const input = document.getElementById('apagarMesInput');
+      const btn = document.getElementById('apagarMesBtn');
+      const status = document.getElementById('apagarMesStatus');
+
+      btn.addEventListener('click', async () => {
+        if (!input.value) {
+          status.textContent = 'Escolha um mes primeiro.';
+          return;
+        }
+
+        const [anoStr, mesStr] = input.value.split('-');
+        const ano = Number(anoStr);
+        const mes = Number(mesStr);
+        const mesLabel = input.value;
+
+        const confirmacao = window.prompt(
+          `Isso vai apagar PERMANENTEMENTE todas as transacoes de ${mesLabel}.\nDigite APAGAR para confirmar:`
+        );
+        if (confirmacao !== 'APAGAR') {
+          status.textContent = 'Cancelado.';
+          return;
+        }
+
+        btn.disabled = true;
+        status.textContent = 'Apagando...';
+
+        try {
+          const resp = await fetch('/apagar-mes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ano, mes }),
+          });
+          const data = await resp.json();
+
+          if (!resp.ok || !data.ok) {
+            throw new Error(data.erro || 'Falha ao apagar.');
+          }
+
+          status.textContent = `${data.apagadas} transacao(oes) apagada(s). Atualize a pagina para ver o resultado.`;
+        } catch (err) {
+          status.textContent = 'Erro: ' + err.message;
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
